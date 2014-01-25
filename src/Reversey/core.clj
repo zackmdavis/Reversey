@@ -33,35 +33,42 @@
       nil)))
 
 (defn displacement [position1 position2]
-  [(- (row position2) (row position1))
-   (- (col position2) (col position1))])
+  (vec (map - position2 position1)))
 
 (defn displaced_by [position displacement]
-  [(+ (row position) (row displacement))
-   (+ (col position) (col displacement))])
+  (vec (map + position displacement)))
+
+(defn displaced_by_times [position displacement n]
+  (vec (map +
+            position
+            (map #(* n %)
+                 displacement))))
+
+(defn abs [x]
+  (Math/abs x))
+
+(defn magnitude [displacement]
+  (apply max (map abs displacement)))
 
 (defn normalized [displacement]
   (if (or (= (row displacement) 0)
           (= (col displacement) 0)
-          (= (Math/abs (row displacement)) (Math/abs (col displacement))))
-    (let [magnitude (max (row displacement) (col displacement))]
-      [(/ (row displacement) magnitude)
-       (/ (col displacement) magnitude)])
+          (= (abs (row displacement)) (abs (col displacement))))
+    (vec (map (fn [component]
+                (/ component (magnitude displacement)))
+              displacement))
     nil))
 
-;; This is not very elegant and should probably be rewritten
 (defn positions_between_positions [position1 position2]
-  (let [direction
-        (normalized (displacement position1 position2))]
+  (let [difference (displacement position1 position2)
+        direction (normalized difference)
+        between (magnitude difference)]
     (if direction
-      (loop [positions [position1]]
-        (if (= (last positions) position2)
-          (take (- (count positions) 2) (rest positions)) ;; wtf
-          (recur (conj positions
-                       (displaced_by (last positions)
-                                     direction)))))
-      [])))
+      (for [step (range 1 between)]
+        (displaced_by_times position1 direction step))
+      '())))
 
 (defn flip_between_positions! [board position1 position2]
   (doseq [p (positions_between_positions position1 position2)]
     (flip! board p)))
+
