@@ -3,6 +3,8 @@
 
 (def circle_constant 6.283185307179586)
 
+(def now_to_move (atom :white))
+
 (def the_board (r/make_board 8))
 (r/place_disc! the_board [3 3] :white)
 (r/place_disc! the_board [3 4] :black)
@@ -48,4 +50,20 @@
         (if (deref (r/lookup board [row col]))
           (render_disc canvas board [row col]))))))
 
+(defn click_handler [event]
+  (let [canvas (.getElementById js/document "canvas")
+        unit (/ (.-width canvas) 8)
+        row (int (/ (.-pageY event) unit))
+        col (int (/ (.-pageX event) unit))
+        position [row col]]
+    (r/move! the_board position @now_to_move)
+    (swap! now_to_move r/opposing)
+    (.log js/console (name @now_to_move))
+    (draw_board the_board)))
+
+(defn set_click_handler []
+  (let [canvas (.getElementById js/document "canvas")]
+    (set! (.-onclick canvas) click_handler)))
+
 (draw_board the_board)
+(set_click_handler)
