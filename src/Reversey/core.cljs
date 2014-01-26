@@ -102,6 +102,3 @@
   (doseq [direction directions]
     (doseq [to_flip (to_flip_in_direction board position direction)]
       (flip! board to_flip))))
-
-(def game_name "Reversey")
-(js/alert (str "Welcome to " game_name))
