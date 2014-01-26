@@ -63,7 +63,6 @@
   (is (positions_in_direction 8 [0 0] [-1 -1])
       []))
 
-(comment "not yet implemented"
 (deftest test_flip_between_on_relevant_move
   (let [test_board (make_board 8)
         initial_color_positions [[0 0]]
@@ -78,4 +77,3 @@
             (deref (lookup test_board position)))]
       (is (every? (fn [color] (= color (first colors)))
                   resulting_opposing)))))
-)

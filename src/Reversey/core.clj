@@ -2,7 +2,7 @@
 
 (defn make_board [n]
   (vec (for [row (range n)]
-    (vec (for [col (range n)] (atom :empty))))))
+    (vec (for [col (range n)] (atom nil))))))
 
 (defn row [position]
   (first position))
@@ -15,22 +15,19 @@
 
 (def colors #{:white :black})
 
-(defn opposing_color [color]
+(defn opposing [color]
   (cond (= color (first colors)) (second colors)
-        (= color (second colors)) (first colors)
-        :else nil))
+        (= color (second colors)) (first colors)))
 
 (defn place_disc! [board position color]
   (let [square (lookup board position)]
-    (if (= @square :empty)
-      (reset! square color)
-      nil)))
+    (if-not @square
+      (reset! square color))))
 
 (defn flip! [board position]
   (let [square (lookup board position)]
     (if (contains? colors @square)
-      (swap! square opposing_color)
-      nil)))
+      (swap! square opposing))))
 
 (defn displacement [position1 position2]
   (vec (map - position2 position1)))
@@ -56,8 +53,7 @@
           (= (abs (row displacement)) (abs (col displacement))))
     (vec (map (fn [component]
                 (/ component (magnitude displacement)))
-              displacement))
-    nil))
+              displacement))))
 
 (defn positions_between_positions [position1 position2]
   (let [difference (displacement position1 position2)
@@ -66,7 +62,7 @@
     (if direction
       (for [step (range 1 between)]
         (displaced_by_times position1 direction step))
-      '())))
+      [])))
 
 (defn flip_between_positions! [board position1 position2]
   (doseq [p (positions_between_positions position1 position2)]
@@ -88,7 +84,21 @@
                 (displaced_by_times position direction step))))
 
 (defn to_flip_in_direction [board position direction]
-   (comment "TODO"))
+   (let [color (deref (lookup board position))
+         ray (positions_in_direction (count board) position direction)
+         candidates (take-while #(= (deref (lookup board %))
+                                    (opposing color))
+                                ray)
+         sentinel (if (< (count candidates) (count ray))
+                    (nth ray (count candidates)))]
+     (if sentinel
+       (if (= (deref (lookup board sentinel)) color)
+         candidates
+         []) ; not the most
+       []))) ; elegant thing
 
 (defn move! [board position color] 
-  (comment "TODO"))
+  (place_disc! board position color)
+  (doseq [direction directions]
+    (doseq [to_flip (to_flip_in_direction board position direction)]
+      (flip! board to_flip))))
