@@ -51,3 +51,31 @@
             (deref (lookup test_board position)))]
       (is (every? (fn [color] (= color (second colors)))
                   resulting_colors)))))
+
+(deftest test_in_bounds
+  (is (= (in_bounds 8 [7 7]) true))
+  (is (= (in_bounds 8 [1 0]) true))
+  (is (= (in_bounds 8 [-1 9]) false)))
+
+(deftest test_positions_in_direction
+  (is (positions_in_direction 8 [7 2] [-1 1])
+      [[6 3] [5 4] [4 5] [3 6] [2 7]])
+  (is (positions_in_direction 8 [0 0] [-1 -1])
+      []))
+
+(comment "not yet implemented"
+(deftest test_flip_between_on_relevant_move
+  (let [test_board (make_board 8)
+        initial_color_positions [[0 0]]
+        initial_opposing_positions [[0 1] [0 2] [0 3]]]
+    (doseq [position initial_color_positions]
+      (place_disc! test_board position (first colors)))
+    (doseq [position initial_opposing_positions]
+      (place_disc! test_board position (second colors)))
+    (move! test_board [0 4] (first colors))
+    (let [resulting_opposing
+          (for [position initial_opposing_positions]
+            (deref (lookup test_board position)))]
+      (is (every? (fn [color] (= color (first colors)))
+                  resulting_opposing)))))
+)

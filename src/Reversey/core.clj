@@ -72,3 +72,23 @@
   (doseq [p (positions_between_positions position1 position2)]
     (flip! board p)))
 
+(def directions
+  (remove #(= [0 0] %)
+          (for [i (range -1 2)
+                j (range -1 2)]
+            [i j])))
+
+(defn in_bounds [board_size position]
+  (every? #(and (>= % 0) (< % board_size)) 
+          position))
+
+(defn positions_in_direction [board_size position direction]
+  (take-while #(in_bounds board_size %)
+              (for [step (range 1 board_size)]
+                (displaced_by_times position direction step))))
+
+(defn to_flip_in_direction [board position direction]
+   (comment "TODO"))
+
+(defn move! [board position color] 
+  (comment "TODO"))
