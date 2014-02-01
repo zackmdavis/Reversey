@@ -59,22 +59,26 @@
               (for [step (range 1 board_size)]
                 (displaced_by_times position direction step))))
 
-(defn to_flip_in_direction [board position direction]
-   (let [color (deref (lookup board position))
-         ray (positions_in_direction (count board) position direction)
+(defn to_flip_in_direction [board position color direction]
+   (let [ray (positions_in_direction (count board) position direction)
          candidates (take-while #(= (deref (lookup board %))
                                     (opposing color))
                                 ray)
          sentinel (if (< (count candidates) (count ray))
                     (nth ray (count candidates)))]
-     (if sentinel
-       (if (= (deref (lookup board sentinel)) color)
-         candidates
-         []) ; not the most
-       []))) ; elegant thing
+     (if (and sentinel
+              (= (deref (lookup board sentinel)) color))
+       candidates
+       [])))
+ 
+(defn to_flip [board position color]
+   (for [direction directions
+         flipping_position (to_flip_in_direction
+                            board position color direction)]
+       flipping_position))
 
 (defn move! [board position color] 
   (place_disc! board position color)
-  (doseq [direction directions]
-    (doseq [to_flip (to_flip_in_direction board position direction)]
-      (flip! board to_flip))))
+  (doseq [flipping_position (to_flip board position color)]
+    (flip! board flipping_position)))
+
