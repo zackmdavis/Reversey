@@ -1,9 +1,18 @@
 /pom.xml
 *jar
-/lib
 /classes
-/native
-/.lein-failures
-/checkouts
+
+# libraries
+/lib
+
+# Leiningen stuff 
 /.lein-deps-sum
+/.lein-failures
+/.lein-cljsbuild-compiler-0/
+/.lein-plugins/
+
+# JavaScripts
+*.js
+
+# work in progress
 wip-*
