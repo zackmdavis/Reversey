@@ -56,6 +56,11 @@
                     (.fillRect context (* col unit) (* row unit) unit unit)
                     (set! (.-fillStyle context) "green")))))))
 
+(defn color_commentary []
+  (let [to_move_span (.getElementById js/document "to-move")]
+    (.setAttribute to_move_span
+                   "class" (name @now_to_move))))
+
 (defn click_handler [event]
   (let [canvas (.getElementById js/document "canvas")
         unit (/ (.-width canvas) 8)
@@ -65,6 +70,7 @@
     (when (r/legal_move? the_board position @now_to_move)
       (r/move! the_board position @now_to_move)
       (swap! now_to_move r/opposing)
+      (color_commentary)
       (draw_board the_board))))
 
 (defn set_click_handler []
