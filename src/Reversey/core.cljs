@@ -24,6 +24,11 @@
     (if-not @square
       (reset! square color))))
 
+(defn erase_disc! [board position]
+  (let [square (lookup board position)]
+    (if @square
+      (reset! square nil))))
+
 (defn flip! [board position]
   (let [square (lookup board position)]
     (if (contains? colors @square)
@@ -76,6 +81,14 @@
          flipping_position (to_flip_in_direction
                             board position color direction)]
        flipping_position))
+
+(defn legal_move? [board position color]
+  (if-not (deref (lookup board position))
+    (do
+      (place_disc! board position color)
+      (let [to_hypothetically_flip (to_flip board position color)]
+        (erase_disc! board position)
+        (seq to_hypothetically_flip)))))
 
 (defn move! [board position color] 
   (place_disc! board position color)

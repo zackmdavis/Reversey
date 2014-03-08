@@ -51,3 +51,16 @@
             (deref (lookup test_board position)))]
       (is (every? (fn [color] (= color (first colors)))
                   resulting_opposing)))))
+
+(deftest test_legal_move?
+  (let [test_board (make_board 8)
+        initial_color_positions [[3 3] [4 4]]
+        initial_opposing_positions [[3 4] [4 3]]]
+    (doseq [position initial_color_positions]
+      (place_disc! test_board position (first colors)))
+    (doseq [position initial_opposing_positions]
+      (place_disc! test_board position (second colors)))
+    (is (= [[2 4] [3 5] [4 2] [5 3]]
+           (filter #(legal_move? test_board % (first colors))
+                   (for [row (range 8) col (range 8)]
+                     [row col]))))))

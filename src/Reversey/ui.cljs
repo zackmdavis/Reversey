@@ -3,7 +3,7 @@
 
 (def circle_constant 6.283185307179586)
 
-(def now_to_move (atom :white))
+(def now_to_move (atom :black))
 
 (def the_board (r/make_board 8))
 (r/place_disc! the_board [3 3] :white)
@@ -38,6 +38,7 @@
   (let [canvas (.getElementById js/document "canvas")
         width (.getAttribute canvas "width")
         height (.getAttribute canvas "height")
+        unit (/ width 8)
         context (.getContext canvas "2d")]
     (set! (.-fillStyle context) "green")
     (.fillRect context 0 0 width height)
@@ -47,8 +48,16 @@
       (draw_line context width height 0 col 8 col))
     (doseq [row (range 8)]
       (doseq [col (range 8)]
-        (if (deref (r/lookup board [row col]))
-          (render_disc canvas board [row col]))))))
+        (cond (deref (r/lookup board [row col]))
+                  (do
+                    (render_disc canvas board [row col])
+                    (.log js/console row col "occupied"))
+              (r/legal_move? board [row col] @now_to_move)
+                  (do
+                    (set! (.-fillStyle context) "#90EE90")
+                    (.fillRect context (* col unit) (* row unit) unit unit)
+                    (.log js/console [@now_to_move [row col]])
+                    (set! (.-fillStyle context) "green")))))))
 
 (defn click_handler [event]
   (let [canvas (.getElementById js/document "canvas")
