@@ -49,14 +49,11 @@
     (doseq [row (range 8)]
       (doseq [col (range 8)]
         (cond (deref (r/lookup board [row col]))
-                  (do
-                    (render_disc canvas board [row col])
-                    (.log js/console row col "occupied"))
+                  (render_disc canvas board [row col])
               (r/legal_move? board [row col] @now_to_move)
                   (do
                     (set! (.-fillStyle context) "#90EE90")
                     (.fillRect context (* col unit) (* row unit) unit unit)
-                    (.log js/console [@now_to_move [row col]])
                     (set! (.-fillStyle context) "green")))))))
 
 (defn click_handler [event]
@@ -65,10 +62,10 @@
         row (int (/ (.-pageY event) unit))
         col (int (/ (.-pageX event) unit))
         position [row col]]
-    (r/move! the_board position @now_to_move)
-    (swap! now_to_move r/opposing)
-    (.log js/console (name @now_to_move))
-    (draw_board the_board)))
+    (when (r/legal_move? the_board position @now_to_move)
+      (r/move! the_board position @now_to_move)
+      (swap! now_to_move r/opposing)
+      (draw_board the_board))))
 
 (defn set_click_handler []
   (let [canvas (.getElementById js/document "canvas")]
