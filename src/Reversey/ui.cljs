@@ -25,6 +25,16 @@
     (set! (.-fillStyle context) color)    
     (.fill context)))
 
+(defn render_highlight [canvas position]
+  (let [context (.getContext canvas "2d")
+        unit (/ (.-width canvas) 8)
+        [row col] position]
+    (set! (.-fillStyle context) "#80DE80")
+    (.fillRect context
+               (* col unit) (* row unit)
+               unit unit)
+    (set! (.-fillStyle context) "green")))
+
 (defn draw_line [context width height start_row start_col end_row end_col]
   (let [unit (/ width 8)]
     (.beginPath context)
@@ -52,13 +62,7 @@
               disc_maybe (first prophecy)
               vision (second prophecy)]
           (cond disc_maybe (render_disc canvas disc_maybe position)
-                (seq vision) 
-                    (do
-                        (set! (.-fillStyle context) "#90EE90")
-                        (.fillRect context
-                                   (* col unit) (* row unit)
-                                   unit unit)
-                        (set! (.-fillStyle context) "green"))))))))
+                (seq vision) (render_highlight canvas position)))))))
     
 (defn color_commentary [board to_move]
   (let [scoreboard (r/score board)
