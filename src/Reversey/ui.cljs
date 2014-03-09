@@ -56,10 +56,16 @@
                     (.fillRect context (* col unit) (* row unit) unit unit)
                     (set! (.-fillStyle context) "green")))))))
 
-(defn color_commentary []
-  (let [to_move_span (.getElementById js/document "to-move")]
-    (.setAttribute to_move_span
-                   "class" (name @now_to_move))))
+(defn color_commentary [board to_move]
+  (let [scoreboard (r/score board)
+        to_move_span (.getElementById js/document "to-move")
+        black_score_span (.getElementById js/document "black-score")
+        white_score_span (.getElementById js/document "white-score")
+        mover (name to_move)]
+    (.setAttribute to_move_span "class" mover)
+    (set! (.-innerHTML to_move_span) mover)
+    (set! (.-innerHTML black_score_span) (str (scoreboard :black)))
+    (set! (.-innerHTML white_score_span) (str (scoreboard :white)))))
 
 (defn click_handler [event]
   (let [canvas (.getElementById js/document "canvas")
@@ -70,7 +76,7 @@
     (when (r/legal_move? the_board position @now_to_move)
       (r/move! the_board position @now_to_move)
       (swap! now_to_move r/opposing)
-      (color_commentary)
+      (color_commentary the_board @now_to_move)
       (draw_board the_board))))
 
 (defn set_click_handler []

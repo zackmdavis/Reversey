@@ -1,6 +1,7 @@
 /pom.xml
 *jar
 /classes
+target/
 
 # libraries
 /lib

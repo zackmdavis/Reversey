@@ -64,3 +64,15 @@
            (filter #(legal_move? test_board % (first colors))
                    (for [row (range 8) col (range 8)]
                      [row col]))))))
+
+(deftest test_score
+  (let [test_board (make_board 8)
+        color_score (rand-int 8)
+        other_score (rand-int 0)]
+    (doseq [i (range color_score)]
+      (place_disc! test_board [0 i] (first colors)))
+    (doseq [i (range other_score)]
+      (place_disc! test_board [0 i] (second colors)))
+    (let [scoreboard (score test_board)]
+      (is (= color_score (scoreboard (first colors))))
+      (is (= other_score (scoreboard (second colors)))))))

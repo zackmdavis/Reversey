@@ -95,3 +95,10 @@
   (doseq [flipping_position (to_flip board position color)]
     (flip! board flipping_position)))
 
+(defn score [board]
+  (let [n (count board)
+        squares (for [row (range n) col (range n)]
+                  (deref (lookup board [row col])))]
+    (into {}
+          (for [color colors]
+            [color (count (filter #{color} squares))]))))
