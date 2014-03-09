@@ -84,11 +84,7 @@
 
 (defn legal_move? [board position color]
   (if-not (deref (lookup board position))
-    (do
-      (place_disc! board position color)
-      (let [to_hypothetically_flip (to_flip board position color)]
-        (erase_disc! board position)
-        (seq to_hypothetically_flip)))))
+    (seq (to_flip board position color))))
 
 (defn move! [board position color] 
   (place_disc! board position color)
