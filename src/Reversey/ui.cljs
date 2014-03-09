@@ -11,13 +11,11 @@
 (r/place_disc! the_board [4 3] :black)
 (r/place_disc! the_board [4 4] :white)
 
-(defn render_disc [canvas board position]
+(defn render_disc [canvas color position]
   (let [context (.getContext canvas "2d")
+        color (name color)
         unit (/ (.-width canvas) 8)
-        center (map #(* unit (+ 0.5 %)) position)
-        color (apply str
-                     (rest
-                      (str (deref (r/lookup board position)))))]
+        center (map #(* unit (+ 0.5 %)) position)]
     (.beginPath context)
     (.arc context 
           (second center) (first center)
@@ -39,7 +37,8 @@
         width (.getAttribute canvas "width")
         height (.getAttribute canvas "height")
         unit (/ width 8)
-        context (.getContext canvas "2d")]
+        context (.getContext canvas "2d")
+        surface (r/surface board @now_to_move)]
     (set! (.-fillStyle context) "green")
     (.fillRect context 0 0 width height)
     (doseq [row (range 1 8)]
@@ -48,14 +47,19 @@
       (draw_line context width height 0 col 8 col))
     (doseq [row (range 8)]
       (doseq [col (range 8)]
-        (cond (deref (r/lookup board [row col]))
-                  (render_disc canvas board [row col])
-              (r/legal_move? board [row col] @now_to_move)
-                  (do
-                    (set! (.-fillStyle context) "#90EE90")
-                    (.fillRect context (* col unit) (* row unit) unit unit)
-                    (set! (.-fillStyle context) "green")))))))
-
+        (let [position [row col]
+              prophecy (r/lookup surface position)
+              disc_maybe (first prophecy)
+              vision (second prophecy)]
+          (cond disc_maybe (render_disc canvas disc_maybe position)
+                (seq vision) 
+                    (do
+                        (set! (.-fillStyle context) "#90EE90")
+                        (.fillRect context
+                                   (* col unit) (* row unit)
+                                   unit unit)
+                        (set! (.-fillStyle context) "green"))))))))
+    
 (defn color_commentary [board to_move]
   (let [scoreboard (r/score board)
         to_move_span (.getElementById js/document "to-move")

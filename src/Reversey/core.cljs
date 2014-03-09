@@ -91,6 +91,11 @@
   (doseq [flipping_position (to_flip board position color)]
     (flip! board flipping_position)))
 
+(defn prophesied_move! [board position color vision]
+  (place_disc! board position color)
+  (doseq [flipping_position vision]
+    (flip! board flipping_position)))
+
 (defn score [board]
   (let [n (count board)
         squares (for [row (range n) col (range n)]
@@ -98,3 +103,15 @@
     (into {}
           (for [color colors]
             [color (count (filter #{color} squares))]))))
+
+(defn prophecy [board position color]
+  (let [square (lookup board position)]
+    (if @square
+      [@square []]
+      [nil (to_flip board position color)])))
+
+(defn surface [board color]
+  (let [n (count board)]
+    (vec (for [row (range n)]
+           (vec (for [col (range n)]
+                  (prophecy board [row col] color)))))))
