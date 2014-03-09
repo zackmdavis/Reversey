@@ -3,13 +3,13 @@
 
 (def circle_constant 6.283185307179586)
 
-(def now_to_move (atom :black))
-
 (def the_board (r/make_board 8))
-(r/place_disc! the_board [3 3] :white)
-(r/place_disc! the_board [3 4] :black)
-(r/place_disc! the_board [4 3] :black)
-(r/place_disc! the_board [4 4] :white)
+(def the_setup (vector [[3 3] :white] [[3 4] :black]
+                       [[4 3] :black] [[4 4] :white]))
+(doseq [[initial_position color] the_setup]
+  (r/place_disc! the_board initial_position color))
+
+(def now_to_move (atom :black))
 
 (defn render_disc [canvas color position]
   (let [context (.getContext canvas "2d")
